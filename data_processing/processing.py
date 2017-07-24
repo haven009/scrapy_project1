@@ -58,4 +58,5 @@ class DataProcess():
                     resume["hometown"] = info2.split('：')[1]
                     continue
                 resume["level"] = info2
+            resume.pop('person_info')
             self.collection_affresume.insert(resume)  # 存入到mongodb集合中
