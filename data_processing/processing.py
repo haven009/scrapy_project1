@@ -4,6 +4,9 @@ import pymongo
 import re
 from scrapy import Selector
 
+from zhilian_resume.util.regularPatternUtil import RegularPatternUtil
+
+
 class DataProcess():
     client = pymongo.MongoClient(host='localhost', port=27017)
     db_name = 'zhilian'
@@ -16,7 +19,7 @@ class DataProcess():
         处理操作方法
         :return:
         """
-        pattern = re.compile('["\n", " ", "\t", "\r"]*')  # 用于编译正则表达式并返回对象
+        regularPatternUtil = RegularPatternUtil()  # 正则表达式工具类
         for resume in self.collection_preresume.find():
             resume_selector = Selector(text=resume['person_info'])
             person_info1 = re.sub(pattern='(\xa0)+', repl='|',
@@ -25,28 +28,26 @@ class DataProcess():
                 if re.search(pattern="[" + unicode('女', 'utf8') + unicode('男', 'utf8') + "]",
                              string=info1, flags=0) != None:
                     # print info1
-                    resume["sex"] = re.sub(pattern=pattern, repl='', string=info1)
+                    resume["sex"] = regularPatternUtil.substituteStrFunc1(info1)
                     continue
                 if re.search(pattern=unicode('岁', 'utf8'), string=info1, flags=0) != None:
                     # print info1.split(unicode('岁','utf8'))[0]
-                    resume["age"] = re.sub(pattern=pattern, repl='', string=info1.split(unicode('岁','utf8'))[0])
+                    resume["age"] = regularPatternUtil.substituteStrFunc1(info1.split(unicode('岁','utf8'))[0])
                     continue
                 if re.search(pattern=unicode('工作经验', 'utf8'), string=info1, flags=0) != None:
                     # print info1
-                    resume["exper"] = re.sub(pattern=pattern, repl='', string=info1)
+                    resume["exper"] = regularPatternUtil.substituteStrFunc1(info1)
                     continue
                 if re.search(pattern="[" + unicode('初高技专EMBA其他大专本硕博', 'utf8') + "]+", string=info1,
                              flags=0) != None:
                     # print info1
-                    resume["degree"] = re.sub(pattern=pattern, repl='', string=info1)
+                    resume["degree"] = regularPatternUtil.substituteStrFunc1(info1)
                     continue
                 if re.search(pattern="[" + unicode('未婚已婚离异', 'utf8') + "]", string=info1, flags=0) != None:
                     # print info1
-                    resume["marry"] = re.sub(pattern=pattern, repl='', string=info1)
+                    resume["marry"] = regularPatternUtil.substituteStrFunc1(info1)
                     continue
-            person_info2 = re.sub(pattern=pattern, repl='',
-                                  string=resume_selector.css("div.summary-top::text").extract()[2].encode('utf8'))
-            # print person_info2
+            person_info2 = regularPatternUtil.substituteStrFunc1(resume_selector.css("div.summary-top::text").extract()[2].encode('utf8'))
             for info2 in person_info2.split('|'):
                 # print info2.split('：')[0]
                 if info2.split('：')[0] == '现居住地':

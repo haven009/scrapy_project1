@@ -19,6 +19,8 @@ from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.wait import WebDriverWait
 from lib2to3.pgen2.tokenize import Ignore
 
+from zhilian_resume.util.regularPatternUtil import RegularPatternUtil
+
 reload(sys)
 sys.setdefaultencoding('utf-8')
 from scrapy.selector import Selector
@@ -132,17 +134,16 @@ class ZhiLianResumeSpider(scrapy.Spider):
         zhilianResumeItem = ZhilianResumeItem()
         # zhilianResumeItem.setAll()  # 设置item所有属性缺省值为None
         resume_selector = Selector(text=response.text)
-        pattern = re.compile('["\n", " ", "\t", "\r"]*')  # 用于编译正则表达式并返回对象
-        zhilianResumeItem["resume_name"] = re.sub(pattern=pattern, repl='', string=resume_selector.css(
+        regularPatternUtil = RegularPatternUtil()  # 正则表达式工具类
+        zhilianResumeItem["resume_name"] = regularPatternUtil.substituteStrFunc1(resume_selector.css(
             "strong[id=resumeName]::text").extract_first().encode('utf8'))
-        zhilianResumeItem["expect_work"] = re.sub(pattern=pattern, repl='', string=resume_selector.css(
+        zhilianResumeItem["expect_work"] = regularPatternUtil.substituteStrFunc1(resume_selector.css(
             "strong[id=desireIndustry]::text").extract_first().encode('utf8'))
-        zhilianResumeItem["update_date"] = re.sub(pattern=pattern, repl='', string=resume_selector.css(
+        zhilianResumeItem["update_date"] = regularPatternUtil.substituteStrFunc1(resume_selector.css(
             "strong[id=resumeUpdateTime]::text").extract_first().encode('utf8'))
-        zhilianResumeItem["resume_id"] = \
-            re.sub(pattern=pattern, repl='',
-                   string=resume_selector.css("span.resume-left-tips-id::text").extract_first().split(":")[1].encode(
-                       'utf8'))
+        zhilianResumeItem["resume_id"] = regularPatternUtil.substituteStrFunc1(
+            resume_selector.css("span.resume-left-tips-id::text").extract_first().split(":")[1].encode(
+                'utf8'))
         zhilianResumeItem["person_info"] = resume_selector.css("div.summary-top").extract_first()
         # person_info1 = re.sub(pattern='(\xa0)+', repl='|',
         #                       string=resume_selector.css("div.summary-top span::text").extract_first()).split('|')
@@ -194,141 +195,140 @@ class ZhiLianResumeSpider(scrapy.Spider):
                     tr_selector = Selector(text=tr)
                     if tr_selector.css("td::text").extract_first().encode('utf8').split('：')[0] == "期望工作地区":
                         print tr_selector.css("td::text").extract()[1].encode('utf8').split('\n')
-                        zhilianResumeItem["expect_work_city"] = re.sub(pattern=pattern, repl='',
-                                                                       string=tr_selector.css("td::text").extract()[
-                                                                           1].encode('utf8'))
+                        zhilianResumeItem["expect_work_city"] = regularPatternUtil.substituteStrFunc1(
+                            tr_selector.css("td::text").extract()[
+                                1].encode('utf8'))
                         continue
                     if tr_selector.css("td::text").extract_first().encode('utf8').split('：')[0] == "期望月薪":
                         print tr_selector.css("td::text").extract()[1].encode('utf8')
-                        zhilianResumeItem["expect_sal"] = re.sub(pattern=pattern, repl='',
-                                                                 string=tr_selector.css("td::text").extract()[1].encode(
-                                                                     'utf8'))
+                        zhilianResumeItem["expect_sal"] = regularPatternUtil.substituteStrFunc1(
+                            tr_selector.css("td::text").extract()[1].encode(
+                                'utf8'))
                         continue
                     if tr_selector.css("td::text").extract_first().encode('utf8').split('：')[0] == "目前状况":
                         print tr_selector.css("td::text").extract()[1].encode('utf8')
-                        zhilianResumeItem["current_situation"] = re.sub(pattern=pattern, repl='',
-                                                                        string=tr_selector.css("td::text").extract()[
-                                                                            1].encode('utf8'))
+                        zhilianResumeItem["current_situation"] = regularPatternUtil.substituteStrFunc1(
+                            tr_selector.css("td::text").extract()[
+                                1].encode('utf8'))
                         continue
                     if tr_selector.css("td::text").extract_first().encode('utf8').split('：')[0] == "期望工作性质":
                         print tr_selector.css("td::text").extract()[1].encode('utf8')
-                        zhilianResumeItem["expect_job_nature"] = re.sub(pattern=pattern, repl='',
-                                                                        string=tr_selector.css("td::text").extract()[
-                                                                            1].encode('utf8'))
+                        zhilianResumeItem["expect_job_nature"] = regularPatternUtil.substituteStrFunc1(
+                            tr_selector.css("td::text").extract()[
+                                1].encode('utf8'))
                         continue
                     if tr_selector.css("td::text").extract_first().encode('utf8').split('：')[0] == "期望从事职业":
                         print tr_selector.css("td::text").extract()[1].encode('utf8')
-                        zhilianResumeItem["expect_job"] = re.sub(pattern=pattern, repl='',
-                                                                 string=tr_selector.css("td::text").extract()[1].encode(
-                                                                     'utf8'))
+                        zhilianResumeItem["expect_job"] = regularPatternUtil.substituteStrFunc1(
+                            tr_selector.css("td::text").extract()[1].encode(
+                                'utf8'))
                         continue
                     if tr_selector.css("td::text").extract_first().encode('utf8').split('：')[0] == "期望从事行业":
                         print tr_selector.css("td::text").extract()[1].encode('utf8')
-                        zhilianResumeItem["exxpect_indu"] = re.sub(pattern=pattern, repl='',
-                                                                   string=tr_selector.css("td::text").extract()[
-                                                                       1].encode('utf8'))
+                        zhilianResumeItem["exxpect_indu"] = regularPatternUtil.substituteStrFunc1(
+                            tr_selector.css("td::text").extract()[
+                                1].encode('utf8'))
                         continue
                 continue
             if contselector.css("h3::text").extract_first().encode('utf8') == "自我评价":
                 self_evalList = contselector.css("div.rd-break::text").extract()
-                zhilianResumeItem["self_eval"] = re.sub(pattern=pattern, repl='',
-                                                        string="".join(self_evalList).encode('utf8'))
+                zhilianResumeItem["self_eval"] = regularPatternUtil.substituteStrFunc1(
+                    "".join(self_evalList).encode('utf8'))
                 continue
             if contselector.css("h3::text").extract_first().encode('utf8') == "工作经历":
-                zhilianResumeItem["work_exper"] = re.sub(pattern=pattern, repl='', string=cont.encode('utf8'))
+                zhilianResumeItem["work_exper"] = regularPatternUtil.substituteStrFunc1(cont.encode('utf8'))
                 continue
             if contselector.css("h3::text").extract_first().encode('utf8') == "项目经历":
-                zhilianResumeItem["project_exper"] = re.sub(pattern=pattern, repl='', string=cont.encode('utf8'))
+                zhilianResumeItem["project_exper"] = regularPatternUtil.substituteStrFunc1(cont.encode('utf8'))
                 continue
             if contselector.css("h3::text").extract_first().encode('utf8') == "教育经历":
-                zhilianResumeItem["edu_exper"] = re.sub(pattern=pattern, repl='', string=contselector.css(
+                zhilianResumeItem["edu_exper"] = regularPatternUtil.substituteStrFunc1(contselector.css(
                     "div.resume-preview-dl::text").extract_first().encode(
                     'utf8'))
                 continue
             if contselector.css("h3::text").extract_first().encode('utf8') == "在校学习情况":
                 study_situationList = contselector.css("div.resume-preview-dl::text").extract()
-                zhilianResumeItem["study_situation"] = re.sub(pattern=pattern, repl='',
-                                                              string="".join(study_situationList).encode('utf8'))
+                zhilianResumeItem["study_situation"] = regularPatternUtil.substituteStrFunc1(
+                    "".join(study_situationList).encode('utf8'))
                 continue
             if contselector.css("h3::text").extract_first().encode('utf8') == "在校实践经验":
                 practical_experList = contselector.css("div.resume-preview-dl::text").extract()
-                zhilianResumeItem["practical_exper"] = re.sub(pattern=pattern, repl='',
-                                                              string="".join(practical_experList).encode('utf8'))
+                zhilianResumeItem["practical_exper"] = regularPatternUtil.substituteStrFunc1(
+                    "".join(practical_experList).encode('utf8'))
                 continue
             if contselector.css("h3::text").extract_first().encode('utf8') == "培训经历":
-                zhilianResumeItem["train_exper"] = re.sub(pattern=pattern, repl='', string=cont.encode('utf8'))
+                zhilianResumeItem["train_exper"] = regularPatternUtil.substituteStrFunc1(cont.encode('utf8'))
                 continue
             if contselector.css("h3::text").extract_first().encode('utf8') == "证书":
                 certificateList = contselector.css("h2::text").extract()
-                zhilianResumeItem["certificate"] = re.sub(pattern=pattern, repl='',
-                                                          string="".join(certificateList).encode('utf8'))
+                zhilianResumeItem["certificate"] = regularPatternUtil.substituteStrFunc1(
+                    "".join(certificateList).encode('utf8'))
                 continue
             if contselector.css("h3::text").extract_first().encode('utf8') == "语言能力":
                 languageList = contselector.css("div.resume-preview-dl::text").extract()
-                zhilianResumeItem["language"] = re.sub(pattern=pattern, repl='',
-                                                       string="".join(languageList).encode('utf8'))
+                zhilianResumeItem["language"] = regularPatternUtil.substituteStrFunc1(
+                    "".join(languageList).encode('utf8'))
                 continue
             if contselector.css("h3::text").extract_first().encode('utf8') == "专业技能":
                 profess_skillList = contselector.css("div.resume-preview-dl::text").extract()
-                zhilianResumeItem["profess_skill"] = re.sub(pattern=pattern, repl='',
-                                                            string="".join(profess_skillList).encode('utf8'))
+                zhilianResumeItem["profess_skill"] = regularPatternUtil.substituteStrFunc1(
+                    "".join(profess_skillList).encode('utf8'))
                 continue
             if contselector.css("h3::text").extract_first().encode('utf8') == "爱好":
                 hobbyList = contselector.css("div.resume-preview-dl::text").extract()
-                zhilianResumeItem["hobby"] = re.sub(pattern=pattern, repl='', string="".join(hobbyList).encode('utf8'))
+                zhilianResumeItem["hobby"] = regularPatternUtil.substituteStrFunc1("".join(hobbyList).encode('utf8'))
                 continue
             if contselector.css("h3::text").extract_first().encode('utf8') == "社会活动":
                 social_activList = contselector.css("div.resume-preview-dl::text").extract()
-                zhilianResumeItem["social_activ"] = re.sub(pattern=pattern, repl='',
-                                                           string="".join(social_activList).encode('utf8'))
+                zhilianResumeItem["social_activ"] = regularPatternUtil.substituteStrFunc1(
+                    "".join(social_activList).encode('utf8'))
                 continue
             if contselector.css("h3::text").extract_first().encode('utf8') == "获得荣誉":
                 achieving_honorList = contselector.css("div.resume-preview-dl::text").extract()
-                zhilianResumeItem["achieving_honor"] = re.sub(pattern.pattern, repl='',
-                                                              string="".join(achieving_honorList).encode('utf8'))
+                zhilianResumeItem["achieving_honor"] = regularPatternUtil.substituteStrFunc1(
+                    "".join(achieving_honorList).encode('utf8'))
                 continue
             if contselector.css("h3::text").extract_first().encode('utf8') == "荣誉":
                 honorList = contselector.css("div.resume-preview-dl::text").extract()
-                zhilianResumeItem["honor"] = re.sub(pattern=pattern, repl='', string="".join(honorList).encode('utf8'))
+                zhilianResumeItem["honor"] = regularPatternUtil.substituteStrFunc1("".join(honorList).encode('utf8'))
                 continue
             if contselector.css("h3::text").extract_first().encode('utf8') == "特殊技能":
                 special_skillList = contselector.css("div.resume-preview-dl::text").extract()
-                zhilianResumeItem["special_skill"] = re.sub(pattern=pattern, repl='',
-                                                            string="".join(special_skillList).encode('utf8'))
+                zhilianResumeItem["special_skill"] = regularPatternUtil.substituteStrFunc1(
+                    "".join(special_skillList).encode('utf8'))
                 continue
             if contselector.css("h3::text").extract_first().encode('utf8') == "特长职业目标":
                 special_occu_targetList = contselector.css("div.resume-preview-dl::text").extract()
-                zhilianResumeItem["special_occu_target"] = re.sub(pattern=pattern, repl='',
-                                                                  string="".join(special_occu_targetList).encode(
-                                                                      'utf8'))
+                zhilianResumeItem["special_occu_target"] = regularPatternUtil.substituteStrFunc1(
+                    "".join(special_occu_targetList).encode(
+                        'utf8'))
                 continue
             if contselector.css("h3::text").extract_first().encode('utf8') == "专利":
                 patentList = contselector.css("div.resume-preview-dl::text").extract()
-                zhilianResumeItem["patent"] = re.sub(pattern=pattern, repl='',
-                                                     string="".join(patentList).encode('utf8'))
+                zhilianResumeItem["patent"] = regularPatternUtil.substituteStrFunc1("".join(patentList).encode('utf8'))
                 continue
             if contselector.css("h3::text").extract_first().encode('utf8') == "著作/论文":
                 paperList = contselector.css("div.resume-preview-dl::text").extract()
-                zhilianResumeItem["paper"] = re.sub(pattern=pattern, repl='', string="".join(paperList).encode('utf8'))
+                zhilianResumeItem["paper"] = regularPatternUtil.substituteStrFunc1("".join(paperList).encode('utf8'))
                 continue
             if contselector.css("h3::text").extract_first().encode('utf8') == "推荐信":
                 recommendationList = contselector.css("div.resume-preview-dl::text").extract()
-                zhilianResumeItem["recommendation"] = re.sub(pattern=pattern, repl='',
-                                                             string="".join(recommendationList).encode('utf8'))
+                zhilianResumeItem["recommendation"] = regularPatternUtil.substituteStrFunc1(
+                    "".join(recommendationList).encode('utf8'))
                 continue
             if contselector.css("h3::text").extract_first().encode('utf8') == "专业组织":
                 professional_orgList = contselector.css("div.resume-preview-dl::text").extract()
-                zhilianResumeItem["professional_org "] = re.sub(pattern=pattern, repl='',
-                                                                string="".join(professional_orgList).encode('utf8'))
+                zhilianResumeItem["professional_org "] = regularPatternUtil.substituteStrFunc1(
+                    "".join(professional_orgList).encode('utf8'))
                 continue
             if contselector.css("h3::text").extract_first().encode('utf8') == "宗教信仰":
                 religionList = contselector.css("div.resume-preview-dl::text").extract()
-                zhilianResumeItem["religion "] = re.sub(pattern=pattern, repl='',
-                                                        string="".join(religionList).encode('utf8'))
+                zhilianResumeItem["religion "] = regularPatternUtil.substituteStrFunc1(
+                    "".join(religionList).encode('utf8'))
                 continue
         zhilianResumeItem["page_url"] = get_base_url(response)
-        zhilianResumeItem["page_title"] = re.sub(pattern=pattern, repl='',
-                                                 string=resume_selector.css("title::text").extract_first().encode(
-                                                     'utf8'))
+        zhilianResumeItem["page_title"] = regularPatternUtil.substituteStrFunc1(
+            resume_selector.css("title::text").extract_first().encode(
+                'utf8'))
         zhilianResumeItem["curr_time"] = time.strftime('%Y-%m-%d %X', time.localtime(time.time()))
         yield zhilianResumeItem
