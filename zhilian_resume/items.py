@@ -53,6 +53,7 @@ class ZhilianResumeItem(scrapy.Item):
     page_url = scrapy.Field()  # 采集页面url
     page_title = scrapy.Field()  # 采集页面标题
     curr_time = scrapy.Field()  # 采集页面时间
+    zhilianresume_uuid = scrapy.Field()  # UUID
 
     def setAll(self):
         """

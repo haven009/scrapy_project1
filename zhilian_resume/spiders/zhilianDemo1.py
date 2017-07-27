@@ -2,6 +2,8 @@
 # author: haven
 
 import re
+import uuid
+
 import scrapy
 import codecs
 import json
@@ -236,28 +238,28 @@ class ZhiLianResumeSpider(scrapy.Spider):
                     "".join(self_evalList).encode('utf8'))
                 continue
             if contselector.css("h3::text").extract_first().encode('utf8') == "工作经历":
-                zhilianResumeItem["work_exper"] = regularPatternUtil.substituteStrFunc1(cont.encode('utf8'))
+                zhilianResumeItem["work_exper"] = regularPatternUtil.substituteStrFunc2(cont.encode('utf8'))
                 continue
             if contselector.css("h3::text").extract_first().encode('utf8') == "项目经历":
-                zhilianResumeItem["project_exper"] = regularPatternUtil.substituteStrFunc1(cont.encode('utf8'))
+                zhilianResumeItem["project_exper"] = regularPatternUtil.substituteStrFunc2(cont.encode('utf8'))
                 continue
             if contselector.css("h3::text").extract_first().encode('utf8') == "教育经历":
-                zhilianResumeItem["edu_exper"] = regularPatternUtil.substituteStrFunc1(contselector.css(
+                zhilianResumeItem["edu_exper"] = regularPatternUtil.substituteStrFunc2(contselector.css(
                     "div.resume-preview-dl::text").extract_first().encode(
                     'utf8'))
                 continue
             if contselector.css("h3::text").extract_first().encode('utf8') == "在校学习情况":
                 study_situationList = contselector.css("div.resume-preview-dl::text").extract()
-                zhilianResumeItem["study_situation"] = regularPatternUtil.substituteStrFunc1(
+                zhilianResumeItem["study_situation"] = regularPatternUtil.substituteStrFunc2(
                     "".join(study_situationList).encode('utf8'))
                 continue
             if contselector.css("h3::text").extract_first().encode('utf8') == "在校实践经验":
                 practical_experList = contselector.css("div.resume-preview-dl::text").extract()
-                zhilianResumeItem["practical_exper"] = regularPatternUtil.substituteStrFunc1(
+                zhilianResumeItem["practical_exper"] = regularPatternUtil.substituteStrFunc2(
                     "".join(practical_experList).encode('utf8'))
                 continue
             if contselector.css("h3::text").extract_first().encode('utf8') == "培训经历":
-                zhilianResumeItem["train_exper"] = regularPatternUtil.substituteStrFunc1(cont.encode('utf8'))
+                zhilianResumeItem["train_exper"] = regularPatternUtil.substituteStrFunc2(cont.encode('utf8'))
                 continue
             if contselector.css("h3::text").extract_first().encode('utf8') == "证书":
                 certificateList = contselector.css("h2::text").extract()
@@ -326,9 +328,12 @@ class ZhiLianResumeSpider(scrapy.Spider):
                 zhilianResumeItem["religion "] = regularPatternUtil.substituteStrFunc1(
                     "".join(religionList).encode('utf8'))
                 continue
-        zhilianResumeItem["page_url"] = get_base_url(response)
+        zhilianResumeItem["page_url"] = response.url
         zhilianResumeItem["page_title"] = regularPatternUtil.substituteStrFunc1(
             resume_selector.css("title::text").extract_first().encode(
                 'utf8'))
         zhilianResumeItem["curr_time"] = time.strftime('%Y-%m-%d %X', time.localtime(time.time()))
+        UUID = str(uuid.uuid1())
+        print UUID
+        zhilianResumeItem['zhilianresume_uuid'] = UUID  # 设置UUID
         yield zhilianResumeItem

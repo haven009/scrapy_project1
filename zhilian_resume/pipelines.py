@@ -6,9 +6,12 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 import pymongo
 
+from data_processing.processing import DataProcess
+
 
 class MongoPipeline(object):
-    collection_name = 'resume'
+    collection_name1 = 'resume'
+    collection_name2 = 'resume_processed'
 
     def __init__(self, mongo_uri, mongo_db):
         self.mongo_uri = mongo_uri
@@ -45,6 +48,9 @@ class MongoPipeline(object):
         :param spider:
         :return item:
         """
-        self.db[self.collection_name].insert(dict(item))
+        dataProcess = DataProcess()  # 创建数据处理工具实例
+        new_item = dataProcess.processing2(dict(item))
+        self.db[self.collection_name1].insert(dict(item))
+        self.db[self.collection_name2].insert(dict(new_item))
         return item
 

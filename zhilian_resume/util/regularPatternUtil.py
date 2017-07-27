@@ -15,9 +15,25 @@ class RegularPatternUtil(object):
         """
         return re.compile('["\n", " ", "\t", "\r"]*')  # 用于编译正则表达式并返回对象
 
+    def pattern2(self):
+        """
+        模式2：匹配"\n", "\t", "\r"
+        :return:
+        """
+        return re.compile('["\n", "\t", "\r"]*')  # 用于编译正则表达式并返回对象
+
     def substituteStrFunc1(self, old_str):
         """
         使用模式1替换字符
+        :param old_str:
+        :return:
+        """
+        new_str = re.sub(pattern=self.pattern1(), repl="", string=old_str)
+        return new_str
+
+    def substituteStrFunc2(self, old_str):
+        """
+        使用模式2替换字符
         :param old_str:
         :return:
         """
